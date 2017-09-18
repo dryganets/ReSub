@@ -83,10 +83,19 @@ abstract class ComponentBase<P extends React.Props<any>, S extends Object> exten
 
     private _isMounted = false;
 
+    private onCreated: Function;
+
     constructor(props: P) {
         super(props);
-
+        
         const derivedClassRender = this.render || _.noop;
+        
+        this.onCreated = () => {
+            this._storeSubscriptions = this._initStoreSubscriptions();
+            // Initialize state
+            this.state = (this._buildStateWithAutoSubscriptions(this.props, true) as S) || ({} as S);
+        };
+
         // No one should use Store getters in render: do that in _buildState instead.
         this.render = forbidAutoSubscribeWrapper(() => {
             // Handle exceptions because otherwise React would break and the app would become unusable until refresh.
@@ -105,19 +114,20 @@ abstract class ComponentBase<P extends React.Props<any>, S extends Object> exten
         });
     }
 
+    protected _initLocals(): void {
+        // implement to initialize local variables to the default values
+    }
+
     protected _initStoreSubscriptions(): StoreSubscription<S>[] {
         return [];
     }
 
     // Subclasses may override, but _MUST_ call super.
     componentWillMount(): void {
-        this._storeSubscriptions = this._initStoreSubscriptions();
         _.forEach(this._storeSubscriptions, subscription => {
             this._addSubscription(subscription);
         });
 
-        // Initialize state
-        this.state = (this._buildStateWithAutoSubscriptions(this.props, true) as S) || ({} as S);
         this._isMounted = true;
     }
 
