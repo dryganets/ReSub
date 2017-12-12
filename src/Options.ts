@@ -30,7 +30,7 @@ interface IProcess {
 
 export interface ReactOptions {
     setCallOnCreate(value: boolean): void;
-    isCallOnCreate(): boolean;
+    shouldCallOnCreate(): boolean;
 }
 
 class ReactOptionsDefault implements ReactOptions {
@@ -71,12 +71,12 @@ class ReactOptionsDefault implements ReactOptions {
         }
     }
 
-    isCallOnCreate(): boolean {
-        return !!this._reactCreateElement;
+    shouldCallOnCreate(): boolean {
+        return !this._reactCreateElement;
     }
 }
 
-function createReactOpltions(): ReactOptions {
+function createReactOptions(): ReactOptions {
     return new ReactOptionsDefault();
 }
 
@@ -90,7 +90,7 @@ let OptionsVals: IOptions = {
 
     development: typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'production',
 
-    reactOptions: createReactOpltions()
+    reactOptions: createReactOptions()
 
 };
 
